@@ -1,4 +1,5 @@
 class Employee:
+    """Class to represent the employee details"""
     def __init__(self, name, empID, department, jobTitle, basicSalary, age, dateOfBirth, passportID, passportExpiry, managerID):
         self.name = name
         self.empID = int(empID)
