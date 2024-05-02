@@ -1,7 +1,7 @@
 class Employee:
     def __init__(self, name, empID, department, jobTitle, basicSalary, age, dateOfBirth, passportID, passportExpiry, managerID):
         self.name = name
-        self.empID = empID
+        self.empID = int(empID)
         self.department = department
         self.jobTitle = jobTitle
         self.basicSalary = basicSalary
@@ -9,4 +9,4 @@ class Employee:
         self.dateOfBirth = dateOfBirth
         self.passportID = passportID
         self.passportExpiry = passportExpiry
-        self.managerID = managerID
+        self.managerID = int(managerID)
