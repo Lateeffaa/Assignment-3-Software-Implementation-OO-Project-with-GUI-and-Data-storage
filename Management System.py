@@ -1,3 +1,265 @@
+import pickle
+import os
+import tkinter as tk
+from tkinter import ttk, simpledialog, messagebox
+
+infoPath = "data"  # The data will be stored here
+if not os.path.exists(infoPath):
+    os.makedirs(infoPath)
+
+# Functions to save and load the employee information
+def saveInfo(employees):
+    try:
+        with open(os.path.join(infoPath, 'employees.pkl'), 'wb') as dumpf:
+            pickle.dump(employees, dumpf)
+    except Exception as e:
+        messagebox.showerror("Error", f"Error while saving the information: {e}")
+
+def loadInfo():
+    try:
+        with open(os.path.join(infoPath, 'employees.pkl'), 'rb') as loadf:
+            return pickle.load(loadf)
+    except FileNotFoundError:
+        messagebox.showinfo("Information", "Employee not found.")
+        return {}
+    except Exception as e:
+        messagebox.showerror("Error", f"Error while loading the information: {e}")
+        return {}
+
+
+# Functions to save and load event information
+def saveEventInfo(events):
+    try:
+        with open(os.path.join(infoPath, 'events.pkl'), 'wb') as dumpf:
+            pickle.dump(events, dumpf)
+    except Exception as e:
+        messagebox.showerror("Error", f"Error while saving the information: {e}")
+
+def loadEventInfo():
+    try:
+        with open(os.path.join(infoPath, 'events.pkl'), 'rb') as loadf:
+            return pickle.load(loadf)
+    except FileNotFoundError:
+        messagebox.showinfo("Information", "Event not found.")
+        return {}
+    except Exception as e:
+        messagebox.showerror("Error", f"Error while loading the information: {e}")
+        return {}
+
+
+# Functions to save and load supplier information
+def saveSupplierInfo(supplier):
+    try:
+        with open(os.path.join(infoPath, 'suppliers.pkl'), 'wb') as dumpf:
+            pickle.dump(supplier, dumpf)
+    except Exception as e:
+        messagebox.showerror("Error", f"Error while saving the information: {e}")
+
+def loadSupplierInfo():
+    try:
+        with open(os.path.join(infoPath, 'suppliers.pkl'), 'rb') as loadf:
+            return pickle.load(loadf)
+    except FileNotFoundError:
+        messagebox.showinfo("Information", "Supplier not found.")
+        return {}
+    except Exception as e:
+        messagebox.showerror("Error", f"Error while loading the information: {e}")
+        return {}
+
+
+# Functions to save and load guest information
+def saveGuestInfo(guests):
+    try:
+        with open(os.path.join(infoPath, 'guests.pkl'), 'wb') as dumpf:
+            pickle.dump(guests, dumpf)
+    except Exception as e:
+        messagebox.showerror("Error", f"Error while saving the information: {e}")
+
+def loadGuestInfo():
+    try:
+        with open(os.path.join(infoPath, 'guests.pkl'), 'rb') as loadf:
+            return pickle.load(loadf)
+    except FileNotFoundError:
+        messagebox.showinfo("Information", "Guest not found.")
+        return {}
+    except Exception as e:
+        messagebox.showerror("Error", f"Error while loading the information: {e}")
+        return {}
+
+
+# Functions to save and load client information
+def saveClientInfo(clients):
+    try:
+        with open(os.path.join(infoPath, 'clients.pkl'), 'wb') as dumpf:
+            pickle.dump(clients, dumpf)
+    except Exception as e:
+        messagebox.showerror("Error", f"Error while saving the information: {e}")
+
+def loadClientInfo():
+    try:
+        with open(os.path.join(infoPath, 'clients.pkl'), 'rb') as loadf:
+            return pickle.load(loadf)
+    except FileNotFoundError:
+        messagebox.showinfo("Information", "Client not found.")
+        return {}
+    except Exception as e:
+        messagebox.showerror("Error", f"Error while loading the information: {e}")
+        return {}
+
+
+# Functions to save and load venue information
+def saveVenueInfo(venues):
+    try:
+        with open(os.path.join(infoPath, 'venues.pkl'), 'wb') as dumpf:
+            pickle.dump(venues, dumpf)
+    except Exception as e:
+        messagebox.showerror("Error", f"Error while saving the information: {e}")
+
+def loadVenueInfo():
+    try:
+        with open(os.path.join(infoPath, 'venues.pkl'), 'rb') as loadf:
+            return pickle.load(loadf)
+    except FileNotFoundError:
+        messagebox.showinfo("Information", "Venue not found.")
+        return {}
+    except Exception as e:
+        messagebox.showerror("Error", f"Error while loading the information: {e}")
+        return {}
+
+
+class Employee:
+    """Class to represent the employee information"""
+
+    def __init__(self, name, empID, department, jobTitle, basicSalary, age, dateOfBirth, passportID, passportExpiry,
+                 managerID):
+        self.name = name
+        self.empID = empID
+        self.department = department
+        self.jobTitle = jobTitle
+        self.basicSalary = basicSalary
+        self.age = age
+        self.dateOfBirth = dateOfBirth
+        self.passportID = passportID
+        self.passportExpiry = passportExpiry
+        self.managerID = managerID
+
+    def getInfo(self):
+        # Return information about the employee
+        return (f"Name: {self.name}\nEmployee ID: {self.empID}\nDepartment: {self.department}\nJob Title: {self.jobTitle}\nBasic Salary: {self.basicSalary}\nAge: {self.age}"
+                 f"\nDate of Birth: {self.dateOfBirth}\nPassport ID: {self.passportID}\nPassport Expiry Date: {self.passportExpiry}\nManager: {self.managerID}")
+
+
+class Client:
+    """Class to represent the client information"""
+
+    def __init__(self, clientName, clientID, clientAddress, email, phoneNum, clientBudget):
+        self.clientName = clientName
+        self.clientID = clientID
+        self.clientAddress = clientAddress
+        self.email = email
+        self.phoneNum = phoneNum
+        self.clientBudget = clientBudget
+
+    def updateBudget(self, newBudget):
+        self.clientBudget = newBudget
+
+    def displayInfo(self):
+        # Return details of the client
+        return f"Client Name: {self.clientName}\nClient ID: {self.clientID}\nClient Address: {self.clientAddress}\nEmail: {self.email}\n Phone Number: {self.phoneNum}\nBudget: {self.clientBudget}"
+
+
+class Guest:
+    """Class to represent the guest information"""
+
+    def __init__(self, guestName, guestID, guestAddress, email, phoneNum):
+        self.guestName = guestName
+        self.guestID = guestID
+        self.guestAddress = guestAddress
+        self.email = email
+        self.phoneNum = phoneNum
+
+    def getInfo(self):
+        # Return details of the guest
+        return f"Guest Name: {self.guestName}\n Guest ID: {self.guestID}\n Guest Address: {self.guestAddress}\n Email: {self.email}\n Phone Number: {self.phoneNum}"
+
+
+class Supplier:
+    """Class to represent the supplier information"""
+
+    def __init__(self, supplierName, supplierID, supplierAddress, email, phoneNum, supplierCompany, minGuests,
+                 maxGuests):
+        self.supplierName = supplierName
+        self.supplierID = supplierID
+        self.supplierAddress = supplierAddress
+        self.email = email
+        self.phoneNum = phoneNum
+        self.supplierCompany = supplierCompany
+        self.minGuests = minGuests
+        self.maxGuests = maxGuests
+
+    def __str__(self):
+        return f"Supplier Name: {self.supplierName}\nSupplier ID: {self.supplierID}\n Supplier Address: {self.supplierAddress}\n Email: {self.email}\n Phone Number: {self.phoneNum}\n Supplier Company: {self.supplierCompany}\n Minimum Guests: {self.minGuests}\n Maximum Guests: {self.maxGuests}"
+
+
+class Venue:
+    """Class to represent the venue information"""
+
+    def __init__(self, venueName, venueID, venueAddress, contactNum, minGuests, maxGuests):
+        self.venueName = venueName
+        self.venueID = venueID
+        self.venueAddress = venueAddress
+        self.contactNum = contactNum
+        self.minGuests = minGuests
+        self.maxGuests = maxGuests
+
+    def __str__(self):
+        return f"Venue Name: {self.venueName}\n Venue ID: {self.venueID}\n Address: {self.venueAddress}\n Contact Number: {self.contactNum}\n Min Guests: {self.minGuests}\n Max Guests: {self.maxGuests}"
+
+
+class Event:
+    """Class to represent the event information"""
+
+    def __init__(self, eventName, eventID, eventType, eventTheme, date, time, duration, venueAddress, clientID,
+                 invoice):
+        self.eventName = eventName
+        self.eventID = eventID
+        self.eventType = eventType
+        self.eventTheme = eventTheme
+        self.date = date
+        self.time = time
+        self.duration = duration
+        self.venueAddress = venueAddress
+        self.clientID = clientID
+        self.guestList = []
+        self.suppliers = []
+        self.invoice = invoice
+
+    def addSupplier(self, supplierName, supplierID, supplierAddress, email, phoneNum, supplierCompany, minGuests, maxGuests):
+        # Add supplier to event
+        newSupplier = Supplier(supplierName, supplierID, supplierAddress, email, phoneNum, supplierCompany, minGuests, maxGuests)
+        self.suppliers.append(newSupplier)
+        return newSupplier
+
+    def removeSupplier(self, supplierID):
+        # Remove supplier from event
+        self.suppliers = [supplier for supplier in self.suppliers if supplier.supplierID != supplierID]
+
+    def addGuest(self, guest):
+        # Add guest to event
+        self.guestList.append(guest)
+
+    def removeGuest(self, guestID):
+        # Remove guest from event
+        self.guestList = [guest for guest in self.guestList if guest.guestID != guestID]
+
+    def getInfo(self):
+        # details of the event
+        details = f"Event Name: {self.eventName}\n Event ID: {self.eventID}\n Type: {self.eventType}\n Date: {self.date}\n Time: {self.time}\n Duration: {self.duration}\n Venue Address: {self.venueAddress}\n Client ID: {self.clientID}\n Invoice: {self.invoice}"
+        guests_info = '\n'.join([guest.getInfo() for guest in self.guestList])
+        suppliers_info = '\n'.join([str(supplier) for supplier in self.suppliers])
+        return f"{details}\nGuests:\n{guests_info}\nSuppliers:\n{suppliers_info}"
+
+
 class ManagementSystem:
     """Class to represent the management system for the company and all the information"""
     def __init__(self, root):
@@ -754,12 +1016,11 @@ class ManagementSystem:
         else:
             messagebox.showerror("Error", "Client not found")
 
-
     # Opens venue management system
     def openVenueSystem(self):
         self.venues = loadVenueInfo()
         self.venueTree = ttk.Treeview(self.root, columns=("Venue ID", "Address", "Min Guests", "Max Guests"),
-                                       show="headings")
+                                      show="headings")
         self.venueTree.heading("Venue ID", text="Venue ID")
         self.venueTree.heading("Address", text="Address")
         self.venueTree.heading("Min Guests", text="Min Guests")
@@ -773,32 +1034,29 @@ class ManagementSystem:
 
         self.refreshVenueTable()
 
-
     # Refreshes venue table
     def refreshVenueTable(self):
         for i in self.venueTree.get_children():
             self.venueTree.delete(i)
         for venueID, venue in self.venues.items():
             self.venueTree.insert("", "end",
-                                   values=(venue.venueID, venue.venueAddress, venue.minGuests, venue.maxGuests))
-
+                                  values=(venue.venueID, venue.venueAddress, venue.minGuests, venue.maxGuests))
 
     # Opens new window for adding a new venue.
     def openAddVenueForm(self):
-        self.openAddVenueForm = tk.Toplevel(self.root)
-        self.openAddVenueForm.title("Add New Venue")
+        self.addVenueWindow = tk.Toplevel(self.root)  # Fixed variable name
+        self.addVenueWindow.title("Add New Venue")
 
         labels = ['Address:', 'Min Guests:', 'Max Guests:']
         self.venueEntries = {}
 
         for i, label in enumerate(labels):
-            ttk.Label(self.addVenueWindow, text=label).grid(row=i, column=0)
+            ttk.Label(self.addVenueWindow, text=label).grid(row=i, column=0)  # Fixed variable name
             entry = ttk.Entry(self.addVenueWindow)
             entry.grid(row=i, column=1)
             self.venueEntries[label] = entry
 
         ttk.Button(self.addVenueWindow, text="Save Venue", command=self.addVenue).grid(row=len(labels), column=1)
-
 
     # Collects data from the form and creates a new Venue object and refreshes the venue table
     def addVenue(self):
@@ -823,7 +1081,6 @@ class ManagementSystem:
         self.refreshVenueTable()
         self.addVenueWindow.destroy()
 
-
     # Modifies venue information based on user input
     def modifyVenue(self):
         venueID = simpledialog.askstring("Modify Venue", "Enter the ID of the venue to modify")
@@ -831,12 +1088,12 @@ class ManagementSystem:
             venue = self.venues[venueID]
 
             newAddress = simpledialog.askstring("Modify Venue",
-                                                 f"Current Address: {venue.venueAddress}. New address (to keep current, leave empty):")
+                                                f"Current Address: {venue.venueAddress}. New address (to keep current, leave empty):")
             if newAddress:
-                venue.address = newAddress
+                venue.venueAddress = newAddress  # Fixed attribute name
 
             new_minGuests = simpledialog.askstring("Modify Venue",
-                                                    f"Current Min Guests: {venue.minGuests}. New minimum guests number(to keep current, leave empty):")
+                                                   f"Current Min Guests: {venue.minGuests}. New minimum guests number(to keep current, leave empty):")
             if new_minGuests:
                 try:
                     venue.minGuests = int(new_minGuests)
@@ -845,7 +1102,7 @@ class ManagementSystem:
                     return
 
             new_maxGuests = simpledialog.askstring("Modify Venue",
-                                                    f"Current Max Guests: {venue.maxGuests}. New maximum guests number (to keep current, leave empty):")
+                                                   f"Current Max Guests: {venue.maxGuests}. New maximum guests number (to keep current, leave empty):")
             if new_maxGuests:
                 try:
                     venue.maxGuests = int(new_maxGuests)
@@ -858,7 +1115,6 @@ class ManagementSystem:
         else:
             messagebox.showerror("Error", "Venue not found")
 
-
     # Removes venue from the system
     def removeVenue(self):
         venueID = simpledialog.askstring("Remove Venue", "Enter ID")
@@ -869,7 +1125,6 @@ class ManagementSystem:
         else:
             messagebox.showerror("Error", "Venue not found")
 
-
     # Finds and displays venue info
     def findVenue(self):
         venueID = simpledialog.askstring("Find Venue", "Enter ID")
@@ -879,7 +1134,6 @@ class ManagementSystem:
             messagebox.showinfo("Venue Details", details)
         else:
             messagebox.showerror("Error", "Venue not found")
-
 
 
 root = tk.Tk()
