@@ -96,7 +96,7 @@ class Event:
         return newSupplier
     def removeSupplier(self, supplierID):
         # Remove supplier from event
-        self.suppliers = [supplier for supplier in self.suppliers if supplier.supplier_id != supplierID]
+        self.suppliers = [supplier for supplier in self.suppliers if supplier.supplierID != supplierID]
 
     def addGuest(self, guest):
         # Add guest to event
