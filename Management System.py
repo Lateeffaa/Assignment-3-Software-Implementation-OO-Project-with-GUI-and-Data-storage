@@ -298,7 +298,7 @@ class ManagementSystem:
                 entry.grid(row=i, column=1)
                 self.eventEntries[label] = entry
 
-        ttk.Button(self.addEventWindow, text="Save Event", command=self.add_event).grid(row=len(lbls), column=1)
+        ttk.Button(self.addEventWindow, text="Save Event", command=self.addEvent).grid(row=len(lbls), column=1)
 
 
     # Collects information from the form and creates a new Event and refreshes the event table
@@ -372,3 +372,516 @@ class ManagementSystem:
             self.refreshEventTable()
         else:
             messagebox.showerror("Error", "Event not found")
+
+
+    # Prompts user to enter event ID and displays the event details
+    def findEvent(self):
+        eventID = simpledialog.askstring("Find Event", "Enter Event ID")
+        try:
+            # Loading current event info
+            self.events = loadEventInfo()
+            # Checking if event ID exists
+            if eventID in self.events:
+                event = self.events[eventID]
+                information = event.getInformation()
+                # Display details
+                messagebox.showinfo("Event Information", information)
+            else:
+                messagebox.showerror("Error", "Event not found")
+        except Exception as e:
+            messagebox.showerror("Error", f"Error while loading the information: {e}")
+
+
+    # Initialize and display supplier management
+    def openSupplierSystem(self):
+        # Loading supplier info
+        self.suppliers = loadSupplierInfo()
+
+        # Setting up a Treeview widget to display supplier info
+        self.supplierTree = ttk.Treeview(self.root, columns=("Supplier Name", "Supplier ID", "Supplier Company"), show="headings")
+        self.supplierTree.heading("Supplier Name", text="Supplier Name")
+        self.supplierTree.heading("Supplier ID", text="Supplier ID")
+        self.supplierTree.heading("Supplier Company", text="Supplier Company")
+        self.supplierTree.grid(row=3, column=0, columnspan=2, sticky='nsew')
+
+        # Buttons for functions
+        ttk.Button(self.root, text="Add Supplier", command=self.openAddSupplierForm).grid(row=4, column=0)
+        ttk.Button(self.root, text="Modify Supplier", command=self.modifySupplier).grid(row=4, column=1)
+        ttk.Button(self.root, text="Remove Supplier", command=self.removeSupplier).grid(row=5, column=0)
+        ttk.Button(self.root, text="Find Supplier by ID", command=self.findSupplier).grid(row=5, column=1)
+
+        self.refreshSupplierTable()
+
+
+    # Clears and refreshes supplier table
+    def refreshSupplierTable(self):
+        for i in self.supplierTree.get_children():
+            self.supplierTree.delete(i)
+        for supplierID, supplier in self.suppliers.items():
+            self.supplierTree.insert("", "end", values=(
+                supplier.supplierName, supplier.supplierID, supplier.SupplierCompany))
+
+
+    # Open new window to add new supplier
+    def openAddSupplierForm(self):
+        # Creating a new window for adding a supplier
+        self.addSupplierWindow = tk.Toplevel(self.root)
+        self.addSupplierWindow.title("Add a New Supplier")
+
+        lbls = ['Name:', 'Supplier Company:']
+        supplierCompany = ['Catering', 'Sound System', 'Decoration', 'Photography', 'Security']
+
+        self.supplierEntries = {}
+        for i, label in enumerate(lbls):
+            ttk.Label(self.addSupplierWindow, text=label).grid(row=i, column=0)
+            if label == 'Service Type:':
+                self.supplierCompany_var = tk.StringVar(self.addSupplierWindow)
+                self.supplierCompany_var.set('Select Service Type')
+                entry = tk.OptionMenu(self.addSupplierWindow, self.supplierCompany_var, *supplierCompany)
+            else:
+                entry = ttk.Entry(self.addSupplierWindow)
+
+            entry.grid(row=i, column=1)
+            self.supplierEntries[label] = entry
+
+        ttk.Button(self.addSupplierWindow, text="Save Supplier", command=self.addSupplier).grid(row=len(lbls), column=1)
+
+
+    # Collects data from the form and creates a new Supplier object and refreshes the supplier table.
+    def addSupplier(self):
+        try:
+            supplierName = self.supplierEntries['Name:'].get().strip()
+            supplierCompany = self.supplierCompany_var.get().strip()
+
+            # Check if fields are empty
+            if not supplierName or not supplierCompany:
+                raise ValueError("All fields must be filled in.")
+
+            # Validating service type
+            if supplierCompany == 'Select Service Company':
+                raise ValueError("Select a valid service type.")
+
+            # Generate unique supplier ID and creating a new Supplier
+            supplierID = f"SP{self.supplierID_counter}"
+            self.supplierID_counter += 1
+            supplier = Supplier(supplierID, supplierName, supplierCompany)
+
+            self.suppliers[supplier.supplierID] = supplier
+            saveSupplierInfo(self.suppliers)
+            self.refreshSupplierTable()
+            self.addSupplierWindow.destroy()
+
+        except Exception as e:
+            messagebox.showerror("Error", f"Unexpected error: {str(e)}")
+
+
+    # Modify on a selected supplier
+    def modifySupplier(self):
+        # Asking for the ID
+        supplierID = simpledialog.askstring("Modify on a Supplier", "Enter Supplier ID")
+
+        # Checking if the supplier ID exists
+        if supplierID in self.suppliers:
+            supplier = self.suppliers[supplierID]
+
+            newName = simpledialog.askstring("Modify on a Supplier", f"Current Name: {supplier.supplierName}. Enter new supplier name (to keep current, leave empty):")
+            if newName:
+                supplier.name = newName
+            newsupplierCompany = simpledialog.askstring("Modify on a Supplier", f"Current Service Type: {supplier.supplierCompany}. Enter new supplier company (to keep current, leave empty):")
+            if newsupplierCompany:
+                supplier.supplierCompany = newsupplierCompany
+            # Saving updated supplier info and refreshing
+            saveSupplierInfo(self.suppliers)
+            self.refreshSupplierTable()
+        else:
+            messagebox.showerror("Error", "Supplier not found")
+
+
+    # Remove supplier from the system by ID
+    def removeSupplier(self):
+        supplierID = simpledialog.askstring("Remove Supplier", "Enter Supplier ID")
+        # Checking if supplier ID exists
+        if supplierID in self.suppliers:
+            del self.suppliers[supplierID]
+            saveSupplierInfo(self.suppliers)
+            self.refreshSupplierTable()
+        else:
+            messagebox.showerror("Error", "Supplier not found")
+
+    # Find and display details of a supplier by ID
+    def findSupplier(self):
+        supplierID = simpledialog.askstring("Find Supplier", "Enter Supplier ID")
+        try:
+            self.suppliers = loadSupplierInfo()
+            if supplierID in self.suppliers:
+                supplier = self.suppliers[supplierID]
+                details = str(supplier)
+                messagebox.showinfo("Supplier Details", details)
+            else:
+                messagebox.showerror("Error", "Supplier not found")
+        except Exception as e:
+            messagebox.showerror("Error", f"Error while loading the information: {e}")
+
+
+
+    # Initializes and displays the guest management system
+    def openGuestSystem(self):
+        self.guests = loadGuestInfo()
+        # Setting up Treeview widget to display guest details
+        self.guestTree = ttk.Treeview(self.root, columns=("Guest ID", "Name", "Phone Number"),
+                                       show="headings")
+        self.guestTree.heading("Guest ID", text="Guest ID")
+        self.guestTree.heading("Name", text="Name")
+        self.guestTree.heading("Phone Number", text="Phone Number")
+        self.guestTree.grid(row=3, column=0, columnspan=2, sticky='nsew')
+
+        # Buttons for adding, modifying, removing, and finding guests
+        ttk.Button(self.root, text="Add Guest", command=self.openAddGuestForm).grid(row=4, column=0)
+        ttk.Button(self.root, text="Modify Guest", command=self.modifyGuest).grid(row=4, column=1)
+        ttk.Button(self.root, text="Remove Guest", command=self.removeGuest).grid(row=5, column=0)
+        ttk.Button(self.root, text="Find Guest by ID", command=self.findGuest).grid(row=5, column=1)
+
+        self.refreshGuestTable()
+
+
+    # A function that clears and updates the guest table with the latest guest data
+    def refreshGuestTable(self):
+        for i in self.guestTree.get_children():
+            self.guestTree.delete(i)
+        for guestID, guest in self.guests.items():
+            self.guestTree.insert("", "end",
+                                   values=(guest.guestID, guest.guestName(), guest._phoneNum))
+
+    # Opens a new window for adding a new guest
+    def openAddGuestForm(self):
+        self.addGuestWindow = tk.Toplevel(self.root)
+        self.addGuestWindow.title("Add New Guest")
+
+        labels = ['Name:', 'Phone Number:']
+        self.guestEntries = {}
+
+        # Adding entry fields for guest information
+        for i, label in enumerate(labels):
+            ttk.Label(self.addGuestWindow, text=label).grid(row=i, column=0)
+
+        ttk.Button(self.addGuestWindow, text="Save Guest", command=self.addGuest).grid(row=len(labels), column=1)
+
+
+    # Collects info from the form and creates a new Guest object and refreshes
+    def addGuest(self):
+        try:
+            name = self.guestEntries['First Name:'].get().strip()
+            phoneNum = self.guestEntries['Phone Number:'].get().strip()
+            # Validating all fields are filled
+            if not (name and phoneNum):
+                raise ValueError("All fields must be filled in.")
+            guestID = f"G{self.guestID_counter}"
+            self.guestID_counter += 1
+
+            # Saving the new guest
+            guest = Guest(name, phoneNum)
+            self.guests[guest.guestID] = guest
+            saveGuestInfo(self.guests)
+            self.refreshGuestTable()
+            self.addGuestWindow.destroy()
+        except Exception as e:
+            tk.messagebox.showerror("Error", f"Unexpected error: {str(e)}")
+
+
+    # Modifies guest information
+    def modifyGuest(self):
+        guestID = simpledialog.askstring("Modify on the Guest", "Enter the ID of the guest to modify")
+        if guestID in self.guests:
+            guest = self.guests[guestID]
+
+            newName = simpledialog.askstring("Modify on the Guest", f"Current Guest Name: {guest.name}. New guest name (to keep current, leave empty):")
+            if newName:
+                guest.guestName = newName
+
+            new_phoneNum = simpledialog.askstring("Modify on the Guest", f"Current Phone Number: {guest._phoneNum}. New phone number (to keep current, leave empty):")
+            if new_phoneNum:
+                guest._phoneNum = new_phoneNum
+
+            # Saving changes
+            saveGuestInfo(self.guests)
+            self.refreshGuestTable()
+        else:
+            messagebox.showerror("Error", "Guest not found")
+
+
+    # Removes a guest
+    def removeGuest(self):
+        guestID = simpledialog.askstring("Remove Guest", "Enter Guest ID")
+        if guestID in self.guests:
+            del self.guests[guestID]
+            saveGuestInfo(self.guests)
+            self.refreshGuestTable()
+        else:
+            messagebox.showerror("Error", "Guest not found")
+
+
+    # Finds and displays guest details based on user input
+    def findGuest(self):
+        guestID = simpledialog.askstring("Find Guest", "Enter Guest ID")
+        if guestID in self.guests:
+            guest = self.guests[guestID]
+            details = guest.getInfo()
+            messagebox.showinfo("Guest Details", details)
+        else:
+            messagebox.showerror("Error", "Guest not found")
+
+    # Opens the client management system interface
+    def openClientSystem(self):
+        # Loading client data
+        self.clients = loadClientInfo()
+        # Initializing client treeview
+        self.clientTree = ttk.Treeview(self.root, columns=("Client ID", "Name", "Phone", "Budget"),
+                                        show="headings")
+        self.clientTree.heading("Client ID", text="Client ID")
+        self.clientTree.heading("Name", text="Name")
+        self.clientTree.heading("Phone", text="Phone")
+        self.clientTree.heading("Budget", text="Budget")
+        self.clientTree.grid(row=3, column=0, columnspan=2, sticky='nsew')
+
+        # Buttons for client management
+        ttk.Button(self.root, text="Add Client", command=self.openAddClientForm).grid(row=4, column=0)
+        ttk.Button(self.root, text="Modify Client", command=self.modifyClient).grid(row=4, column=1)
+        ttk.Button(self.root, text="Remove Client", command=self.removeClient).grid(row=5, column=0)
+        ttk.Button(self.root, text="Find Client by ID", command=self.findClient).grid(row=5, column=1)
+
+        self.refreshClientTable()
+
+
+    # Refresh client table
+    def refreshClientTable(self):
+        # Clearing existing entries
+        for i in self.clientTree.get_children():
+            self.clientTree.delete(i)
+        # Add updated client info into treeview
+        for clientID, client in self.clients.items():
+            self.clientTree.insert("", "end", values=(
+            client.clientID, client.clientName, client._phoneNum, client.budget))
+
+    # Opens a new window for adding a new client
+    def openAddClientForm(self):
+        # New window for adding a client
+        self.addClientWindow = tk.Toplevel(self.root)
+        self.addClientWindow.title("Add New Client")
+
+        # Defining labels for client properties
+        labels = ['Name:', 'Phone Number:', 'Budget:']
+        self.clientEntries = {}
+        ttk.Button(self.addClientWindow, text="Save Client", command=self.addClient).grid(row=len(labels), column=1)
+
+
+    # Collects data from the form and creates a new Client object and refreshes the client table
+    def addClient(self):
+        # Extracting data from the input fields
+        name = self.clientEntries['Name:'].get()
+        phoneNum = self.clientEntries['Phone Number:'].get()
+        budget = self.clientEntries['Budget:'].get()
+
+        # Validating and converting budget and number of events
+        try:
+            budget = float(budget) if budget.strip() else 0
+        except ValueError:
+            messagebox.showerror("Invalid Input",
+                                 "Make sure budget is a number and number of events is an integer.")
+            return
+
+        # Handling empty inputs
+        if not (name and phoneNum and budget):
+            messagebox.showerror("Invalid Input", "Fill all fields.")
+            return
+
+        # Generating client ID
+        clientID = f"C{self.clientID_counter}"
+        self.clientID_counter += 1
+
+        # Creating and saving new client
+        client = Client(name, phoneNum, clientID, budget)
+        self.clients[client.clientID] = client
+        saveClientInfo(self.clients)
+        self.refreshClientTable()
+        self.addClientWindow.destroy()
+
+
+    # Modification of an existing client's budget
+    def modifyClient(self):
+        clientID = simpledialog.askstring("Modify on a Client", "Enter ID")
+        # Checking if the client exists in the client dictionary
+        if clientID in self.clients:
+            client = self.clients[clientID]
+
+            newbudget = simpledialog.askstring("Modify Client",  f"Current Budget: {client.budget}. New budget (to keep current, leave empty):")
+            if newbudget:
+                try:
+                    # Convert input to float and update budget
+                    client.updateBudget(float(newbudget))
+                except ValueError:
+                    messagebox.showerror("Error", "Budget must be a number.")
+                    return
+
+            # Save client info
+            saveClientInfo(self.clients)
+            self.refreshClientTable()
+        else:
+            messagebox.showerror("Error", "Client not found")
+
+
+    # Removes client from system
+    def removeClient(self):
+        clientID = simpledialog.askstring("Remove Client", "Enter ID")
+        # Checking if client exists
+        if clientID in self.clients:
+            # Removing client
+            del self.clients[clientID]
+            # Saving the updated client
+            saveClientInfo(self.clients)
+            self.refreshClientTable()
+        else:
+            messagebox.showerror("Error", "Client not found")
+
+
+    # Searches for a client by ID and displays information
+    def findClient(self):
+        clientID = simpledialog.askstring("Find Client", "Enter ID")
+        # Checking if the client exists in the database
+        if clientID in self.clients:
+            client = self.clients[clientID]
+            details = client.displayInfo()
+            messagebox.showinfo("Client Details", details)
+        else:
+            messagebox.showerror("Error", "Client not found")
+
+
+    # Opens venue management system
+    def openVenueSystem(self):
+        self.venues = loadVenueInfo()
+        self.venueTree = ttk.Treeview(self.root, columns=("Venue ID", "Address", "Min Guests", "Max Guests"),
+                                       show="headings")
+        self.venueTree.heading("Venue ID", text="Venue ID")
+        self.venueTree.heading("Address", text="Address")
+        self.venueTree.heading("Min Guests", text="Min Guests")
+        self.venueTree.heading("Max Guests", text="Max Guests")
+        self.venueTree.grid(row=3, column=0, columnspan=2, sticky='nsew')
+
+        ttk.Button(self.root, text="Add Venue", command=self.openAddVenueForm).grid(row=4, column=0)
+        ttk.Button(self.root, text="Modify Venue", command=self.modifyVenue).grid(row=4, column=1)
+        ttk.Button(self.root, text="Remove Venue", command=self.removeVenue).grid(row=5, column=0)
+        ttk.Button(self.root, text="Find Venue by ID", command=self.findVenue).grid(row=5, column=1)
+
+        self.refreshVenueTable()
+
+
+    # Refreshes venue table
+    def refreshVenueTable(self):
+        for i in self.venueTree.get_children():
+            self.venueTree.delete(i)
+        for venueID, venue in self.venues.items():
+            self.venueTree.insert("", "end",
+                                   values=(venue.venueID, venue.venueAddress, venue.minGuests, venue.maxGuests))
+
+
+    # Opens new window for adding a new venue.
+    def openAddVenueForm(self):
+        self.openAddVenueForm = tk.Toplevel(self.root)
+        self.openAddVenueForm.title("Add New Venue")
+
+        labels = ['Address:', 'Min Guests:', 'Max Guests:']
+        self.venueEntries = {}
+
+        for i, label in enumerate(labels):
+            ttk.Label(self.addVenueWindow, text=label).grid(row=i, column=0)
+            entry = ttk.Entry(self.addVenueWindow)
+            entry.grid(row=i, column=1)
+            self.venueEntries[label] = entry
+
+        ttk.Button(self.addVenueWindow, text="Save Venue", command=self.addVenue).grid(row=len(labels), column=1)
+
+
+    # Collects data from the form and creates a new Venue object and refreshes the venue table
+    def addVenue(self):
+        venueAddress = self.venueEntries['Address:'].get()
+        minGuests = self.venueEntries['Min Guests:'].get()
+        maxGuests = self.venueEntries['Max Guests:'].get()
+        try:
+            minGuests = int(minGuests)
+            maxGuests = int(maxGuests)
+            if not venueAddress:
+                raise ValueError("Address cannot be empty.")
+        except ValueError as e:
+            messagebox.showerror("Input Error", str(e))
+            return
+
+        venueID = f"V{self.venueID_counter}"
+        self.venueID_counter += 1
+
+        venue = Venue(venueID, venueAddress, minGuests, maxGuests)
+        self.venues[venue.venueID] = venue
+        saveVenueInfo(self.venues)
+        self.refreshVenueTable()
+        self.addVenueWindow.destroy()
+
+
+    # Modifies venue information based on user input
+    def modifyVenue(self):
+        venueID = simpledialog.askstring("Modify Venue", "Enter the ID of the venue to modify")
+        if venueID in self.venues:
+            venue = self.venues[venueID]
+
+            newAddress = simpledialog.askstring("Modify Venue",
+                                                 f"Current Address: {venue.venueAddress}. New address (to keep current, leave empty):")
+            if newAddress:
+                venue.address = newAddress
+
+            new_minGuests = simpledialog.askstring("Modify Venue",
+                                                    f"Current Min Guests: {venue.minGuests}. New minimum guests number(to keep current, leave empty):")
+            if new_minGuests:
+                try:
+                    venue.minGuests = int(new_minGuests)
+                except ValueError:
+                    messagebox.showerror("Error", "Minimum guests must be a number.")
+                    return
+
+            new_maxGuests = simpledialog.askstring("Modify Venue",
+                                                    f"Current Max Guests: {venue.maxGuests}. New maximum guests number (to keep current, leave empty):")
+            if new_maxGuests:
+                try:
+                    venue.maxGuests = int(new_maxGuests)
+                except ValueError:
+                    messagebox.showerror("Error", "Maximum guests must be a valid number.")
+                    return
+
+            saveVenueInfo(self.venues)
+            self.refreshVenueTable()
+        else:
+            messagebox.showerror("Error", "Venue not found")
+
+
+    # Removes venue from the system
+    def removeVenue(self):
+        venueID = simpledialog.askstring("Remove Venue", "Enter ID")
+        if venueID in self.venues:
+            del self.venues[venueID]
+            saveVenueInfo(self.venues)
+            self.refreshVenueTable()
+        else:
+            messagebox.showerror("Error", "Venue not found")
+
+
+    # Finds and displays venue info
+    def findVenue(self):
+        venueID = simpledialog.askstring("Find Venue", "Enter ID")
+        if venueID in self.venues:
+            venue = self.venues[venueID]
+            details = str(venue)
+            messagebox.showinfo("Venue Details", details)
+        else:
+            messagebox.showerror("Error", "Venue not found")
+
+
+
+root = tk.Tk()
+app = ManagementSystem(root)
+root.mainloop()
